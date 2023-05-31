@@ -1,4 +1,4 @@
-def get_weather_weekly_forecast(path:str):
+def get_weather_weekly_forecast(path:str,city:str):
     '''
     https://data.gov.tw/dataset/9308
     '''
@@ -17,7 +17,7 @@ def get_weather_weekly_forecast(path:str):
         loc_data = data[i]
         
         loc_name = loc_data['locationName']
-        if loc_name != '臺北市':
+        if loc_name != city:
             continue
         geocode = loc_data['geocode']
         lat = loc_data['lat']
