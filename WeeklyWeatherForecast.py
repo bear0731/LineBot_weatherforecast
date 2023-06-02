@@ -12,7 +12,6 @@ def get_weather_weekly_forecast(path:str,city:str):
     data = data[0]['location']
     # Fetch Data ......
     results = pd.DataFrame()
-    # 共22個地區，每個地區約30秒，資料筆數約60368
     for i in range(len(data)):
         loc_data = data[i]
         
@@ -23,7 +22,7 @@ def get_weather_weekly_forecast(path:str,city:str):
         lat = loc_data['lat']
         lon = loc_data['lon']
         weather_data = loc_data['weatherElement']
-        # 資料類型，有15個
+        # 資料類型
         # 0              PoP12h 12小時降雨機率
         # 1                   T 平均溫度
         # 2                  RH 平均相對濕度
@@ -48,8 +47,6 @@ def get_weather_weekly_forecast(path:str,city:str):
                 ele_name = ele_data_dict['elementName']
                 ele_desc = ele_data_dict['description']
                 ele_data = ele_data_dict['time']
-                # 此欄位為質性資料，如「'陰短暫雨。降雨機率 90%。溫度攝氏18至22度。
-                # 舒適。東北風 風速5級(每秒8公尺)。相對濕度92%。'」，因此不保留
                 if ele_name == 'WeatherDescription' :
                     continue
                 
