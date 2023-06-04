@@ -1,9 +1,10 @@
 import WeatherForcastBot.function.schedule as schedule
 import WeatherForcastBot.views as views
 import os,csv
-schedule.initSchedule()
+#伺服器開機
+schedule.initSchedule()#找回並設定每個schedule
 
-def initViewsVariable():
+def initViewsVariable(): #初始 view.py 的 timedict、locationdict
     path=os.getcwd()+r'\WeatherForcastBot\Data\user.csv'
     with open(path,'r',encoding='utf-8',newline='\n') as ud:
         csvReader=csv.reader(ud)
