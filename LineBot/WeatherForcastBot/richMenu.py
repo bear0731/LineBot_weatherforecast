@@ -21,11 +21,15 @@ headers = {"Authorization":Authorization_token, "Content-Type":"application/json
 #     "areas":[
 #         {
 #           "bounds": {"x": 0, "y": 0, "width": 1036, "height": 762},
-#           "action": {"type": "uri", "uri": "https://line.me/R/nv/location/"}
+#           "action": {'type':'postback','data':'hourForecast','text':'36小時天氣預報'}
 #         },
 #         {
-#           "bounds": {"x": 1036, "y": 0, "width": 1036, "height": 762},
-#           "action": {"type": "message", "text": "營養素"}
+#           "bounds": {"x": 800, "y": 0, "width": 1036, "height": 762},
+#           "action": {'type':'postback','data':'weeklyForecast','text':'一周天氣預報'}
+#         },
+#         {
+#           "bounds": {"x": 1600, "y": 0, "width": 1036, "height": 762},
+#           "action": {'type':'postback','data':'datetimePicker','text':'設定定時天氣預報'}
 #         }
 #     ]
 #   }
@@ -43,7 +47,7 @@ from linebot import (
 )
 import os
 line_bot_api = LineBotApi(token)
-rich_menu_id = "richmenu-c8edf198111b068bc878573944fc8272" 
+rich_menu_id = "richmenu-98f1596cdc304826043ba76e15ff84de" 
 # 主選單的照片路徑
 path =  os.getcwd()+r'\LineBot_weatherforecast\LineBot\WeatherForcastBot\richMenuPic\menuBackground.png'
 

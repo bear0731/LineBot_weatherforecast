@@ -6,11 +6,15 @@ body = {
 #     "areas":[
 #         {
 #           "bounds": {"x": 0, "y": 0, "width": 1036, "height": 762},
-#           "action": {"type": "uri", "uri": "https://line.me/R/nv/location/"}
+#           "action": {'type':'postback','data':'hourForecast','text':'36小時天氣預報'}
 #         },
 #         {
-#           "bounds": {"x": 1036, "y": 0, "width": 1036, "height": 762},
-#           "action": {"type": "message", "text": "營養素"}
+#           "bounds": {"x": 800, "y": 0, "width": 1036, "height": 762},
+#           "action": {'type':'postback','data':'weeklyForecast','text':'一周天氣預報'}
+#         },
+#         {
+#           "bounds": {"x": 1600, "y": 0, "width": 1036, "height": 762},
+#           "action": {'type':'postback','data':'datetimePicker','text':'設定定時天氣預報'}
 #         }
 #     ]
 #   }
