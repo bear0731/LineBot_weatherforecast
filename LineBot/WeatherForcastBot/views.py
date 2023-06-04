@@ -8,7 +8,7 @@ from linebot.models import TextSendMessage,TemplateSendMessage,ConfirmTemplate,U
 import json ,csv
 import WeatherForcastBot.function.HoursWeatherForcast as HoursWeatherForcast
 import WeatherForcastBot.function.FixTimeMessage as FixTimeMessage
-
+import WeatherForcastBot.function.WeeklyWeatherForecast as WeeklyWeatherForecast
 # import WeatherForcastBot.function.WeeklyWeatherForecast as WeeklyWeatherForecast
 import schedule,os
 line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
@@ -72,7 +72,7 @@ def callback(request):
                     if userChooseForecast[userid]=='hourForecast':
                         line_bot_api.reply_message(messages=TextSendMessage(text=HoursWeatherForcast.get36HoursWeatherForcast(userCity)), reply_token=replyToken)#回覆36小時內的氣象預報
                     elif userChooseForecast[userid]=='weeklyForecast':
-                        pass
+                        WeeklyWeatherForecast.sendWeeklyForecastMessage(userid,userCity)
                     elif userChooseForecast[userid]=='datetimePicker':
                         locationdict[userid]=userCity
                         if userid in timedict and userid in locationdict:

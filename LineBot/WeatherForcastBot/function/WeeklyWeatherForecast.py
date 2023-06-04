@@ -1,14 +1,11 @@
 import os
 from linebot import LineBotApi
 from django.conf import settings
-import csv,os,schedule
+import csv,os
 from linebot.models import TextSendMessage
-import WeatherForcastBot.function.HoursWeatherForcast as HoursWeatherForcast
-import WeatherForcastBot.function.schedule as scheduleFuntion
-import threading
-import time
-import signal
-import sys
+import pyimgur
+import matplotlib.pyplot as plt
+from linebot.models import ImageSendMessage
 line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
 def get_weather_weekly_forecast(city:str):
     '''
@@ -60,7 +57,7 @@ def get_weather_weekly_forecast(city:str):
             ele_desc = ele_data_dict['description']
             ele_data = ele_data_dict['time']
 
-            if ele_name == 'UVI' or ele_name == 'PoP12h' or ele_name == 'T' or ele_name == 'MaxAT'  or ele_name == 'MinAT' or ele_name == 'Wx' :
+            if ele_name == 'UVI' or ele_name == 'T' or ele_name == 'MaxAT'  or ele_name == 'MinAT' or ele_name == 'Wx' :
                 pass#go ahead
             else :
                 continue #過濾不需要的資訊
@@ -85,8 +82,90 @@ def get_weather_weekly_forecast(city:str):
                 results = pd.concat([results,new_data],ignore_index=True)
          
     results = results.reset_index(drop=True)
-    results.to_csv(os.getcwd()+r'.\\LineBot_weatherforecast\LineBot\WeatherForcastBot\Data\weeklyForecast.csv', index=False)
+    results.to_csv(os.getcwd()+r'\WeatherForcastBot\Data\weeklyForecast.csv', index=False)
     return results
 def sendWeeklyForecastMessage(userid,location):
-    line_bot_api.push_message(userid,messages=im)
-get_weather_weekly_forecast('臺北市')
+    get_weather_weekly_forecast(location)
+    path=os.getcwd()+r'\WeatherForcastBot\Data\weeklyForecast.csv'
+    xCountter=0
+    x=[]
+    t=[]
+    MaxAT=[]
+    MinAT=[]
+    uvi=[]
+    PoP12h=[]
+    with open(path,'r',encoding='utf-8',newline='\n') as csvfile:
+        rows =csv.DictReader(csvfile)
+        weatherCondition=''
+        for row in rows:
+            if xCountter<15:
+                formateDate=xFormat(row['end_time'][5:13])    
+                x.append(formateDate)
+                xCountter+=1
+            if(row['description']=='平均溫度'):
+                t.append(int(row['value']))
+            if(row['description']=='最高體感溫度'):
+                MaxAT.append(int(row['value']))
+            if(row['description']=='最低體感溫度'):
+                MinAT.append(int(row['value']))
+            if(row['description']=='紫外線指數'):
+                uvi.append(int(row['value']))
+            if(row['description']=='天氣現象'):
+                weatherCondition+=formateDate+' '+row['value']+'\n'
+        plt.figure(figsize=(15,5))
+        plt.plot(x,t,color='r',marker='8', label="average temperature")
+        plt.plot(x,MaxAT,color='g',marker='s',label="maximum temperature")
+        plt.plot(x,MinAT,color='b',marker='v', label="minimum temperature")
+        plt.title('7 days weather forecast')
+        plt.xlabel('date')
+        plt.ylabel('temperature')
+        plt.savefig(os.getcwd()+r'\tempPlot.png')
+        plt.figure(figsize=(10,5))
+        c=0
+        xuvi=[]
+        for date in x:
+            if c%2!=0:
+                xuvi.append(date)
+            c+=1
+        plt.plot(xuvi,uvi)
+        plt.title('UVI Level')
+        plt.xlabel("date")
+        plt.ylabel('Level')
+        plt.savefig(os.getcwd()+r'\uviPlot.png')
+        CLIENT_ID = "ead7e7d4037ae32"
+        PATH = "tempPlot.png" #A Filepath to an image on your computer"
+        title = "Uploaded with PyImgur"
+
+        im = pyimgur.Imgur(CLIENT_ID)
+        uploaded_image = im.upload_image(PATH, title=title)
+        PATH2= "uviPlot.png"
+        uploaded_image2=im.upload_image(PATH2, title=title)
+        
+        line_bot_api = LineBotApi('rj5I5wFIc1JfCkI47s2Egq6MbWRA0y0micaIJOdD0BGGnAsWFZB3p5H4ndljGMF1qZRNs8Wb828zxQmXV//R6sb4sUdkGSE4lgYa4xqTv/iX0dg3kJ6cvSlbcjrSis2vpSChPd0UUZkZWiDc7nwxFwdB04t89/1O/w1cDnyilFU=')
+        line_bot_api.push_message(userid,messages=[
+            TextSendMessage(text='綠線:最高體感溫度\n藍線:平均溫度\n紅線:最低體感溫度'),
+            ImageSendMessage(original_content_url=uploaded_image.link,preview_image_url=uploaded_image.link),
+            ImageSendMessage(original_content_url=uploaded_image2.link,preview_image_url=uploaded_image2.link),
+            TextSendMessage(text=weatherCondition)
+        ])
+       
+def xFormat(time):
+    result=''
+    if time[0]=='0':
+        result+=time[1]
+    else :
+        result+=time[0:2]
+    result+='/'
+    if time[3]=='0':
+        result+=time[4]
+    else :
+        result+=time[3:5]
+    result+='-'
+    clock=int(time[6:8])
+    print(clock/12)
+    if(clock==24 or int(clock/12)==0):
+        result+=str(int(time[6:8]))+' AM'
+    else:
+        result+=str(clock%12)+' PM'
+    return result
+
