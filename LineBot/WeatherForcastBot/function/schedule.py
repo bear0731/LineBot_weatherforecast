@@ -1,5 +1,3 @@
-import signal
-import sys
 import threading
 import time,os
 import schedule,csv

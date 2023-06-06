@@ -29,7 +29,7 @@ LINE_CHANNEL_SECRET = '7bf1b6e0c845b8a612b987b3af5b35f5'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '34da-125-229-194-37.ngrok-free.app'
+    '20bf-125-229-194-37.ngrok-free.app'
 ]
 
 

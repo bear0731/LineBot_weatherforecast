@@ -78,17 +78,18 @@ def get_weather_weekly_forecast(city:str):
 def sendWeeklyForecastMessage(userid,location):
     get_weather_weekly_forecast(location)
     path=os.getcwd()+r'\WeatherForcastBot\Data\weeklyForecast.csv'
-    xCountter=0
+    xCountter=1
     x=[]
     t=[]
     MaxAT=[]
     MinAT=[]
     uvi=[]
-    PoP12h=[]
+    # PoP12h=[]
     with open(path,'r',encoding='utf-8',newline='\n') as csvfile:
         rows =csv.DictReader(csvfile)
         weatherCondition=''
-        for row in rows:
+        index=0
+        for row in rows:       
             if xCountter<15:
                 formateDate=xFormat(row['end_time'][5:13])    
                 x.append(formateDate)
@@ -102,7 +103,8 @@ def sendWeeklyForecastMessage(userid,location):
             if(row['description']=='紫外線指數'):
                 uvi.append(int(row['value']))
             if(row['description']=='天氣現象'):
-                weatherCondition+=formateDate+' '+row['value']+'\n'
+                weatherCondition+=x[index]+' '+row['value']+'\n'
+                index+=1
         #溫度曲線圖
         plt.figure(figsize=(15,5))
         plt.plot(x,t,color='r',marker='8', label="average temperature")

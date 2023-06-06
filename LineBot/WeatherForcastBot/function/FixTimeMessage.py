@@ -35,6 +35,8 @@ def setFixTimeMessageSchedule(userid,time,location):#設定schedule
         userIsExist=False #確認使用者在csv檔
         csvReader=csv.reader(ud)
         for row in csvReader:
+            if row.count==1:
+                 break
             if row[0]==userid:#從 csv 找到 user 存在
                 userIsExist=True
                 scheduleFuntion.deleteSchedule(userid=userid) #刪除上一個固定傳訊的 schedule，要更新
@@ -46,10 +48,11 @@ def setFixTimeMessageSchedule(userid,time,location):#設定schedule
         if not userIsExist: #如果使用者不存在，寫入檔案並增加schedule
             scheduleFuntion.deleteSchedule(userid=userid)
             scheduleFuntion.addSchedule(userid=userid,time=time,location=location)
+            newData.append([userid,time,location])
                
         with open(path,'w',encoding='utf-8',newline='\n') as userData:#寫檔
                 writer=csv.writer(userData)
-                writer.writerow(newData) #寫入
+                writer.writerows(newData) #寫入
                 
 
 
