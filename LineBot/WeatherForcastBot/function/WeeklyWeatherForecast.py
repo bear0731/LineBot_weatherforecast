@@ -5,6 +5,8 @@ import csv,os
 from linebot.models import TextSendMessage
 import pyimgur
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from linebot.models import ImageSendMessage
 import pandas as pd
 import requests
@@ -73,12 +75,12 @@ def get_weather_weekly_forecast(city:str):
                 results = pd.concat([results,new_data],ignore_index=True)
          
     results = results.reset_index(drop=True)
-    results.to_csv(os.getcwd()+r'\WeatherForcastBot\Data\weeklyForecast.csv', index=False)
+    results.to_csv(os.getcwd()+r'/WeatherForcastBot/Data/weeklyForecast.csv', index=False)
     return results
 def sendWeeklyForecastMessage(userid,location):
     get_weather_weekly_forecast(location)
-    path=os.getcwd()+r'\WeatherForcastBot\Data\weeklyForecast.csv'
-    xCountter=1
+    path=os.getcwd()+r'/WeatherForcastBot/Data/weeklyForecast.csv'
+    xCountter=0
     x=[]
     t=[]
     MaxAT=[]
@@ -126,7 +128,7 @@ def sendWeeklyForecastMessage(userid,location):
         plt.title('UVI Level')
         plt.xlabel("date")
         plt.ylabel('Level')
-        plt.savefig(os.getcwd()+r'\uviPlot.png')
+        plt.savefig(os.getcwd()+r'/uviPlot.png')
         # imgur 代理圖片轉URL的功能
         CLIENT_ID = "ead7e7d4037ae32"
         PATH = "tempPlot.png" #要傳送的圖

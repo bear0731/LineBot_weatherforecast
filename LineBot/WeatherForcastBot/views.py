@@ -61,8 +61,13 @@ def callback(request):
                         MessageTemplateAction(label='取消',text='取消')
                         ])
                         ),reply_token=replyToken)
-                if data=='fixed message time':#date time picker 選擇完進入點
-                    timedict[userid]=jsonData['events'][0]['postback']['params']['time']
+                if data=='fixed message time':#date time picker 選擇完進入點                   
+                    t=jsonData['events'][0]['postback']['params']['time']
+                    if int(t[0:2])>8: #轉換utc時間
+                        t=str(int(t[0:2])-8)+t[2:5]
+                    else:
+                        t=str(int(t[0:2])+16)+t[2:5]
+                    timedict[userid]=t
                     if userid in timedict and userid in locationdict: #確定時間和定位的資料存在
                         FixTimeMessage.setFixTimeMessageSchedule(userid,timedict[userid],locationdict[userid])                    
             if jsonData['events'][0]['type']=='message': #訊息事件
