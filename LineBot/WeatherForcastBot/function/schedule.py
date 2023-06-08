@@ -30,13 +30,13 @@ def run_continuously(interval=1): #讓 schedule 順利在背景執行
     continuous_thread.start()
     return cease_continuous_run
 
-def initSchedule():# 初始化 schedule
+def initSchedule():# init schedule
     x=1
     path=os.getcwd()+r'/WeatherForcastBot/Data/user.csv'
-    with open(path,'r',encoding='utf-8',newline='\n') as ud:#讀檔
+    with open(path,'r',encoding='utf-8',newline='\n') as ud:#read file
         csvReader=csv.reader(ud)
         for row in csvReader:
-            if row==[]: #防呆
+            if row==[]: #if file do not have any date
                 continue
             userid=row[0]
             sendTime=row[1]
@@ -44,11 +44,12 @@ def initSchedule():# 初始化 schedule
             schedule.every().days.at(sendTime,pytz.timezone('Asia/Taipei')).do(FixTimeMessage.sendFixedTimeMessage,userid,location).tag(userid)
     # Start the background thread
     print('add thread')
-    stop_run_continuously = run_continuously(10) #每60秒執行一次排程
+    stop_run_continuously = run_continuously(10) #do schedule every 60 seconds
 
-def addSchedule(userid,time,location): #新增 schedule
+def addSchedule(userid,time,location): #add schedule
+    print(time)
     schedule.every().day.at(time).do(FixTimeMessage.sendFixedTimeMessage,userid,location).tag(userid)
-def deleteSchedule(userid):# 刪除schedule
+def deleteSchedule(userid):# delete schedule
     for job in schedule.get_jobs(tag=userid):
         schedule.cancel_job(job=job)
     

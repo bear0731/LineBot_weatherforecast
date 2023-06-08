@@ -6,36 +6,36 @@ import WeatherForcastBot.function.HoursWeatherForcast as HoursWeatherForcast
 import WeatherForcastBot.function.schedule as scheduleFuntion
 
 line_bot_api = LineBotApi(settings.LINE_CHANNEL_ACCESS_TOKEN)
-path=os.getcwd()+r'/WeatherForcastBot/Data/user.csv' #userdata 的位置
+path=os.getcwd()+r'/WeatherForcastBot/Data/user.csv' #userdata's location
 
-def sendFixedTimeMessage(userid,location):#傳36小時預報
+def sendFixedTimeMessage(userid,location):#send a 36 hours message
     print('sending')
     line_bot_api.push_message(userid,messages=TextSendMessage(text= HoursWeatherForcast.get36HoursWeatherForcast(location)))
 
-def setFixTimeMessageSchedule(userid,time,location):#設定schedule
+def setFixTimeMessageSchedule(userid,time,location):#set up schedule
     newData=[]
-    with open(path,'r',encoding='utf-8',newline='\n') as ud:#讀檔
-        userIsExist=False #確認使用者在csv檔
+    with open(path,'r',encoding='utf-8',newline='\n') as ud:#read file
+        userIsExist=False #ensure csv file include user's date
         csvReader=csv.reader(ud)
         for row in csvReader:
             if row.count==1:
                  break
-            if row[0]==userid:#從 csv 找到 user 存在
+            if row[0]==userid:#from csv find user exist
                 userIsExist=True
-                scheduleFuntion.deleteSchedule(userid=userid) #刪除上一個固定傳訊的 schedule，要更新
-                scheduleFuntion.addSchedule(userid=userid,time=time,location=location)#新 schedule
-                newData.append([userid,time,location])#更新 user在 csv 的欄位
+                scheduleFuntion.deleteSchedule(userid=userid) #delete previous fix time message's schedule
+                scheduleFuntion.addSchedule(userid=userid,time=time,location=location)#new schedule
+                newData.append([userid,time,location])#update csv file where user profile changes
             else:
-                newData.append(row) #複寫
+                newData.append(row) #override
             
-        if not userIsExist: #如果使用者不存在，寫入檔案並增加schedule
+        if not userIsExist: #if user not exist ，write to file and set up schedule
             scheduleFuntion.deleteSchedule(userid=userid)
             scheduleFuntion.addSchedule(userid=userid,time=time,location=location)
             newData.append([userid,time,location])
                
-        with open(path,'w',encoding='utf-8',newline='\n') as userData:#寫檔
+        with open(path,'w',encoding='utf-8',newline='\n') as userData:#write file
                 writer=csv.writer(userData)
-                writer.writerows(newData) #寫入
+                writer.writerows(newData) #write user's information
                 
 
 

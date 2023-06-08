@@ -53,14 +53,14 @@ def get_weather_weekly_forecast(city:str):
             if ele_name == 'UVI' or ele_name == 'T' or ele_name == 'MaxAT'  or ele_name == 'MinAT' or ele_name == 'Wx' :
                 pass#go ahead
             else :
-                continue #過濾不需要的資訊
+                continue #filter unwanted messages
             
             for l in range(len(ele_data)):
                 start_time = ele_data[l]['startTime']
                 end_time = ele_data[l]['endTime']
                 value = ele_data[l]['elementValue'][0]['value']
                 
-                # 先保留全部的資料，最後再決定要保留哪些欄位
+                # Keep all the data first, then decide which fields to keep
                 new_data = \
                     pd.DataFrame({'location':[loc_name],
                                     # 'geocode':[geocode],
@@ -80,7 +80,7 @@ def get_weather_weekly_forecast(city:str):
 def sendWeeklyForecastMessage(userid,location):
     get_weather_weekly_forecast(location)
     path=os.getcwd()+r'/WeatherForcastBot/Data/weeklyForecast.csv'
-    xCountter=0
+    xCountter=1
     x=[]
     t=[]
     MaxAT=[]
@@ -107,7 +107,7 @@ def sendWeeklyForecastMessage(userid,location):
             if(row['description']=='天氣現象'):
                 weatherCondition+=x[index]+' '+row['value']+'\n'
                 index+=1
-        #溫度曲線圖
+        #temperature graph
         plt.figure(figsize=(15,5))
         plt.plot(x,t,color='r',marker='8', label="average temperature")
         plt.plot(x,MaxAT,color='g',marker='s',label="maximum temperature")
@@ -116,11 +116,11 @@ def sendWeeklyForecastMessage(userid,location):
         plt.xlabel('date')
         plt.ylabel('temperature')
         plt.savefig(os.getcwd()+r'\tempPlot.png')
-        #紫外線強度圖
+        #UV Intensity Chart
         plt.figure(figsize=(10,5))
         c=0
         xuvi=[]
-        for date in x: #時間軸轉換
+        for date in x: #timeline conversion
             if c%2!=0:
                 xuvi.append(date)
             c+=1
@@ -129,26 +129,26 @@ def sendWeeklyForecastMessage(userid,location):
         plt.xlabel("date")
         plt.ylabel('Level')
         plt.savefig(os.getcwd()+r'/uviPlot.png')
-        # imgur 代理圖片轉URL的功能
+        # imgur proxy image to URL function
         CLIENT_ID = "ead7e7d4037ae32"
-        PATH = "tempPlot.png" #要傳送的圖
+        PATH = "tempPlot.png" #Pictures ready to send
         PATH2= "uviPlot.png"
         title = "Uploaded with PyImgur"
 
         im = pyimgur.Imgur(CLIENT_ID)
-        uploaded_image = im.upload_image(PATH, title=title) #上傳至imgur伺服器
+        uploaded_image = im.upload_image(PATH, title=title) #upload to imgur server
         
-        uploaded_image2=im.upload_image(PATH2, title=title) #上傳至imgur伺服器
+        uploaded_image2=im.upload_image(PATH2, title=title) 
         
         line_bot_api = LineBotApi('rj5I5wFIc1JfCkI47s2Egq6MbWRA0y0micaIJOdD0BGGnAsWFZB3p5H4ndljGMF1qZRNs8Wb828zxQmXV//R6sb4sUdkGSE4lgYa4xqTv/iX0dg3kJ6cvSlbcjrSis2vpSChPd0UUZkZWiDc7nwxFwdB04t89/1O/w1cDnyilFU=')
-        line_bot_api.push_message(userid,messages=[ #發送一周天氣預報
+        line_bot_api.push_message(userid,messages=[ #send weekly forecasr message
             TextSendMessage(text='綠線:最高體感溫度\n藍線:平均溫度\n紅線:最低體感溫度'),
             ImageSendMessage(original_content_url=uploaded_image.link,preview_image_url=uploaded_image.link),
             ImageSendMessage(original_content_url=uploaded_image2.link,preview_image_url=uploaded_image2.link),
             TextSendMessage(text=weatherCondition)
         ])
        
-def xFormat(time): #轉換x軸的顯示單位
+def xFormat(time): #convert the units of the x-axis
     # yyyy-mm-dd hh:mm:ss =>mm/dd-h (AM/PM)
     result=''
     if time[0]=='0':
@@ -162,9 +162,9 @@ def xFormat(time): #轉換x軸的顯示單位
         result+=time[3:5]
     result+='-'
     clock=int(time[6:8])
-    if(clock==24 or int(clock/12)==0): #轉AM
+    if(clock==24 or int(clock/12)==0): #transform to AM
         result+=str(int(time[6:8]))+' AM'
-    else: #轉PM
+    else: #transform to PM
         result+=str(clock%12)+' PM'
     return result
 

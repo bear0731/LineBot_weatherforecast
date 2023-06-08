@@ -8,7 +8,7 @@ Authorization_token = "Bearer " + LINE_CHANNEL_ACCESS_TOKEN
 
 headers = {"Authorization":Authorization_token, "Content-Type":"application/json"}
 '''
-設定一次後註解掉，換Step2
+After setting it once, comment it out and change to Step2
 '''
 #------------------------------------------------Step1--------------------------------------------
 # body = {
@@ -38,7 +38,7 @@ headers = {"Authorization":Authorization_token, "Content-Type":"application/json
 # print(req.text)
 #------------------------------------------------Step2--------------------------------------------
 '''
-重新設定要把ID砍掉重練，重複Step1
+To reset, cut off the ID and retrain, repeat Step1
 '''
 from linebot import (
     LineBotApi, WebhookHandler,

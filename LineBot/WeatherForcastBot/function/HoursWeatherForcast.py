@@ -1,10 +1,10 @@
 import requests
 
-def get36HoursWeatherForcast(userCity): #取得36小時預測資料
+def get36HoursWeatherForcast(userCity): #get 36 hours forecast data
     url = 'https://opendata.cwb.gov.tw/fileapi/v1/opendataapi/F-C0032-001?Authorization=CWB-6F5ED8F9-2D1C-4463-A8CE-067E94A39D81&downloadType=WEB&format=JSON' #資料來源
-    data = requests.get(url)   # 取得 JSON 檔案的內容為文字
-    data_json = data.json()    # 轉換成 JSON 格式
-    location = data_json['cwbopendata']['dataset']['location']   # 取出 location 的內容
+    data = requests.get(url)   # get date
+    data_json = data.json()    # conver to JSON form
+    location = data_json['cwbopendata']['dataset']['location']   # get location 
     message=''
     for i in location:
         if i['locationName']!= userCity:

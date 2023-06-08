@@ -22,9 +22,9 @@ def callback(request):
     if request.method == 'POST':
         signature = request.META['HTTP_X_LINE_SIGNATURE']
         body = request.body.decode('utf-8')
-        jsonData = json.loads(body) #整個callback帶的data
+        jsonData = json.loads(body) #whole callback's data
         try:
-            events = parser.parse(body, signature)  # 傳入的事件
+            events = parser.parse(body, signature)  # input event
             print(events)
         except InvalidSignatureError:
             return HttpResponseForbidden()
@@ -34,11 +34,11 @@ def callback(request):
             replyToken=jsonData['events'][0]['replyToken']
             userid=jsonData['events'][0]['source']['userId']
             if jsonData['events'][0]['type']=='postback':# user click richmenu
-                data=jsonData['events'][0]['postback']['data'] # postback 包的 data
-                if data =='hourForecast' or data=='weeklyForecast' : #如果選擇36小時天氣預報或一周天氣預報
-                    userChooseForecast[userid]=data #紀錄使用者選項
+                data=jsonData['events'][0]['postback']['data'] # postback's data
+                if data =='hourForecast' or data=='weeklyForecast' : #If choose hours forecast or weekly forecast
+                    userChooseForecast[userid]=data #record user's choice
                     line_bot_api.reply_message(
-                        messages=TemplateSendMessage( # 請使用者傳定位
+                        messages=TemplateSendMessage( # ask user send a location message
                         alt_text='Confirm template',
                         template=ConfirmTemplate(                       
                             text='傳送目前位置',
@@ -48,8 +48,8 @@ def callback(request):
                             ]
                             ))
                             ,reply_token=replyToken)
-                if data=='datetimePicker': # 如果選擇date time picker
-                    userChooseForecast[userid]=data #紀錄使用者選項
+                if data=='datetimePicker': # If choose date time picker
+                    userChooseForecast[userid]=data #record user's choose
                     line_bot_api.reply_message(messages=TemplateSendMessage( #請使用者傳定位、時間
                         alt_text='Buttons Template',
                         template=ButtonsTemplate(
@@ -61,23 +61,27 @@ def callback(request):
                         MessageTemplateAction(label='取消',text='取消')
                         ])
                         ),reply_token=replyToken)
-                if data=='fixed message time':#date time picker 選擇完進入點                   
+                if data=='fixed message time':#do this,after select date time picker                  
                     t=jsonData['events'][0]['postback']['params']['time']
-                    if int(t[0:2])>8: #轉換utc時間
-                        t=str(int(t[0:2])-8)+t[2:5]
+                    if int(t[0:2])>8: #transform utc format
+                        if int(t[0:2])-8<10 :
+                            t='0'+str(int(t[0:2])-8)+t[2:5]
+                        else:
+                            t=str(int(t[0:2])-8)+t[2:5]
+
                     else:
                         t=str(int(t[0:2])+16)+t[2:5]
                     timedict[userid]=t
-                    if userid in timedict and userid in locationdict: #確定時間和定位的資料存在
+                    if userid in timedict and userid in locationdict: #make sure date is already
                         FixTimeMessage.setFixTimeMessageSchedule(userid,timedict[userid],locationdict[userid])                    
-            if jsonData['events'][0]['type']=='message': #訊息事件
-                if jsonData['events'][0]['message']['type'] == 'location' : #if使用者傳送座標資訊
-                    userCity=jsonData['events'][0]['message']['address'].replace('台','臺')[5:8]#轉換地區格式
-                    if userChooseForecast[userid]=='hourForecast':#傳送36小時天氣預報
+            if jsonData['events'][0]['type']=='message': #message event
+                if jsonData['events'][0]['message']['type'] == 'location' : #if user send a location message
+                    userCity=jsonData['events'][0]['message']['address'].replace('台','臺')[5:8]#transform location format
+                    if userChooseForecast[userid]=='hourForecast':#sending a 36 hours weather forecast
                         line_bot_api.reply_message(messages=TextSendMessage(text=HoursWeatherForcast.get36HoursWeatherForcast(userCity)), reply_token=replyToken)#回覆36小時內的氣象預報
-                    elif userChooseForecast[userid]=='weeklyForecast':#傳送一周天氣預報
+                    elif userChooseForecast[userid]=='weeklyForecast':#sending a weekly forecast message
                         WeeklyWeatherForecast.sendWeeklyForecastMessage(userid,userCity)
-                    elif userChooseForecast[userid]=='datetimePicker':#設定 定時預報schedule
+                    elif userChooseForecast[userid]=='datetimePicker':#set fix time message schedule
                         locationdict[userid]=userCity
                         if userid in timedict and userid in locationdict:
                             FixTimeMessage.setFixTimeMessageSchedule(userid,timedict[userid],locationdict[userid])
